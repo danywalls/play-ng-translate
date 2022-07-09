@@ -1,31 +1,43 @@
-import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 
+import { Pipe, PipeTransform } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
+
+@Pipe({ name: 'translate' })
+class MockPipe implements PipeTransform {
+  transform(value: string): string {
+    return '';
+  }
+}
+const mockTranslateService = {
+  use: jest.fn(),
+  setDefaultLang: jest.fn(),
+};
+
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AppComponent, MockPipe],
+      providers: [{ provide: TranslateService, useValue: mockTranslateService }],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('can load instance', () => {
+    expect(component).toBeTruthy();
   });
 
-  it(`should have as title 'play-ng-translate'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('play-ng-translate');
+  it('should call TranslateService.setDefaultLang()', () => {
+    expect(mockTranslateService.setDefaultLang).toHaveBeenCalled();
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('play-ng-translate app is running!');
+  it('should call TranslateService.use()', () => {
+    expect(mockTranslateService.use).toHaveBeenCalled();
   });
 });
